@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>برنامه‌ریز مطالعه</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: Tahoma, Arial, sans-serif;
+      background: #f2f5fb;
+      color: #1f2937;
+    }
+
+    .container {
+      width: min(760px, 100%);
+      margin: 30px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 35px #17255414;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #4338ca;
+    }
+
+    .intro {
+      color: #64748b;
+      line-height: 1.9;
+    }
+
+    .progress {
+      height: 9px;
+      margin: 24px 0;
+      overflow: hidden;
+      background: #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .progress-bar {
+      width: 33.33%;
+      height: 100%;
+      background: #6366f1;
+      transition: width 0.25s;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .course {
+      margin: 14px 0;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+    }
+
+    .course-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .course-title strong {
+      color: #4338ca;
+    }
+
+    .remove-btn {
+      padding: 6px 10px;
+      color: #b91c1c;
+      background: #fee2e2;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .primary {
+      color: #fff;
+      background: #4f46e5;
+    }
+
+    .secondary {
+      color: #334155;
+      background: #e2e8f0;
+    }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 8px;
+      color: #4338ca;
+      background: #eef2ff;
+    }
+
+    .result-box {
+      margin: 14px 0;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+    }
+
+    .result-box h3 {
+      margin-top: 0;
+      color: #4338ca;
+    }
+
+    .course-result {
+      margin: 10px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .course-result:last-child {
+      border-bottom: 0;
+    }
+
+    .schedule-day {
+      margin: 12px 0;
+      padding: 14px;
+      background: #f8fafc;
+      border-right: 4px solid #6366f1;
+      border-radius: 10px;
+    }
+
+    .schedule-day h4 {
+      margin: 0 0 8px;
+    }
+
+    .note {
+      margin-top: 18px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 550px) {
+      body {
+        padding: 12px;
+      }
+
+      .container {
+        margin: 12px auto;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>برنامه‌ریز مطالعه</h1>
+    <p class="intro">
+      اطلاعات درس‌ها و زمان آزادت را وارد کن تا یک برنامه‌ی پیشنهادی برای مطالعه بسازی.
+    </p>
+
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- مرحله اول -->
+    <section class="step active" id="step1">
+      <h2>۱. زمان‌بندی</h2>
+
+      <label for="days">چند روز تا امتحان باقی مانده؟</label>
+      <input id="days" type="number" min="1" max="365" value="14">
+
+      <label for="hours">روزانه چند ساعت می‌توانی درس بخوانی؟</label>
+      <input id="hours" type="number" min="0.5" max="16" step="0.5" value="3">
+      <div class="hint">زمان مطالعه‌ی خالص را وارد کن؛ استراحت در این مقدار حساب نمی‌شود.</div>
+
+      <div class="buttons">
+        <span></span>
+        <button class="primary" onclick="goToStep(2)">مرحله بعد</button>
+      </div>
+    </section>
+
+    <!-- مرحله دوم -->
+    <section class="step" id="step2">
+      <h2>۲. درس‌ها</h2>
+      <p class="intro">برای هر درس، سختی و حجم باقی‌مانده را مشخص کن.</p>
+
+      <div id="courses"></div>
+      <button class="add-btn" onclick="addCourse()">+ افزودن درس</button>
+
+      <div class="buttons">
+        <button class="secondary" onclick="goToStep(1)">قبلی</button>
+        <button class="primary" onclick="goToStep(3)">مرحله بعد</button>
+      </div>
+    </section>
+
+    <!-- مرحله سوم -->
+    <section class="step" id="step3">
+      <h2>۳. ترجیحات مطالعه</h2>
+
+      <label for="sessionLength">مدت هر نوبت مطالعه</label>
+      <select id="sessionLength">
+        <option value="25">۲۵ دقیقه</option>
+        <option value="45" selected>۴۵ دقیقه</option>
+        <option value="60">۶۰ دقیقه</option>
+        <option value="90">۹۰ دقیقه</option>
+      </select>
+
+      <label for="breakLength">مدت استراحت بین نوبت‌ها</label>
+      <select id="breakLength">
+        <option value="5">۵ دقیقه</option>
+        <option value="10" selected>۱۰ دقیقه</option>
+        <option value="15">۱۵ دقیقه</option>
+      </select>
+
+      <div class="buttons">
+        <button class="secondary" onclick="goToStep(2)">قبلی</button>
+        <button class="primary" onclick="createPlan()">ساخت برنامه</button>
+      </div>
+    </section>
+
+    <!-- نتیجه -->
+    <section class="step" id="result">
+      <h2>برنامه‌ی پیشنهادی تو</h2>
+      <div id="summary" class="result-box"></div>
+      <div id="allocation" class="result-box"></div>
+      <div id="schedule"></div>
+
+      <p class="note">
+        این برنامه یک پیشنهاد ساده‌ی آموزشی است. اگر برنامه با شرایط واقعی‌ات جور نبود،
+        اطلاعات را تغییر بده و دوباره برنامه بساز.
+      </p>
+
+      <div class="buttons">
+        <button class="secondary" onclick="goToStep(1)">ویرایش اطلاعات</button>
+        <button class="primary" onclick="window.print()">چاپ برنامه</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let courseCount = 0;
+
+    function addCourse(name = "", difficulty = 3, workload = 5) {
+      courseCount++;
+
+      const course = document.createElement("div");
+      course.className = "course";
+
+      course.innerHTML = `
+        <div class="course-title">
+          <strong>درس جدید</strong>
+          <button type="button" class="remove-btn"
+            onclick="this.closest('.course').remove()">حذف</button>
+        </div>
+
+        <label>نام درس</label>
+        <input class="course-name" type="text"
+          placeholder="مثلاً فیزیولوژی" value="${escapeText(name)}">
+
+        <label>سختی درس: <span class="difficulty-label">${difficulty}</span> از ۵</label>
+        <input class="course-difficulty" type="range" min="1" max="5"
+          value="${difficulty}"
+          oninput="this.previousElementSibling.querySelector('span').textContent=this.value">
+
+        <label>حجم باقی‌مانده: از ۱ تا ۱۰</label>
+        <input class="course-workload" type="number" min="1" max="10"
+          value="${workload}">
+        <div class="hint">عدد بیشتر یعنی مطالب بیشتری برای مطالعه باقی مانده است.</div>
+      `;
+
+      document.getElementById("courses").appendChild(course);
+    }
+
+    function escapeText(text) {
+      return String(text).replace(/[&<>"']/g, function (char) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[char];
+      });
+    }
+
+    function goToStep(number) {
+      if (number === 2) {
+        const days = Number(document.getElementById("days").value);
+        const hours = Number(document.getElementById("hours").value);
+
+        if (days < 1 || hours <= 0) {
+          alert("لطفاً تعداد روزها و ساعت مطالعه را درست وارد کن.");
+          return;
+        }
+      }
+
+      if (number === 3) {
+        const courses = getCourses();
+
+        if (courses.length === 0) {
+          alert("لطفاً دست‌کم یک درس اضافه کن.");
+          return;
+        }
+
+        if (courses.some(course => !course.name)) {
+          alert("لطفاً برای همه‌ی درس‌ها نام وارد کن.");
+          return;
+        }
+      }
+
+      showStep("step" + number);
+    }
+
+    function showStep(id) {
+      document.querySelectorAll(".step").forEach(step => {
+        step.classList.remove("active");
+      });
+
+      document.getElementById(id).classList.add("active");
+
+      const progress = {
+        step1: "33.33%",
+        step2: "66.66%",
+        step3: "100%",
+        result: "100%"
+      };
+
+      document.getElementById("progressBar").style.width = progress[id];
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getCourses() {
+      return [...document.querySelectorAll(".course")].map(card => ({
+        name: card.querySelector(".course-name").value.trim(),
+        difficulty: Number(card.querySelector(".course-difficulty").value),
+        workload: Number(card.querySelector(".course-workload").value)
+      }));
+    }
+
+    function createPlan() {
+      const days = Number(document.getElementById("days").value);
+      const hoursPerDay = Number(document.getElementById("hours").value);
+      const courses = getCourses();
+
+      if (!courses.length || courses.some(course => !course.name)) {
+        alert("لطفاً حداقل یک درس اضافه کن و نام همه‌ی درس‌ها را بنویس.");
+        return;
+      }
+
+      if (courses.some(course => course.workload < 1 || course.workload > 10)) {
+        alert("حجم باقی‌مانده‌ی هر درس باید بین ۱ تا ۱۰ باشد.");
+        return;
+      }
+
+      // امتیاز بیشتر یعنی سهم زمانی بیشتر:
+      // سختی × حجم باقی‌مانده
+      const totalWeight = courses.reduce(
+        (sum, course) => sum + course.difficulty * course.workload, 0
+      );
+
+      const totalHours = days * hoursPerDay;
+
+      courses.forEach(course => {
+        course.weight = course.difficulty * course.workload;
+        course.share = course.weight / totalWeight;
+        course.totalMinutes = Math.round(totalHours * 60 * course.share);
+        course.dailyMinutes = Math.round(hoursPerDay * 60 * course.share);
+      });
+
+      document.getElementById("summary").innerHTML = `
+        <h3>خلاصه</h3>
+        <p>تا امتحان: <strong>${days} روز</strong></p>
+        <p>زمان مطالعه‌ی روزانه: <strong>${hoursPerDay} ساعت</strong></p>
+        <p>کل زمان مطالعه‌ی برنامه‌ریزی‌شده: <strong>${formatMinutes(totalHours * 60)}</strong></p>
+      `;
+
+      const sortedCourses = [...courses].sort((a, b) => b.weight - a.weight);
+
+      document.getElementById("allocation").innerHTML = `
+        <h3>تقسیم زمان و اولویت درس‌ها</h3>
+        ${sortedCourses.map((course, index) => `
+          <div class="course-result">
+            <strong>${index + 1}. ${escapeText(course.name)}</strong><br>
+            اولویت: ${index === 0 ? "زیاد" : index === sortedCourses.length - 1 ? "کمتر" : "متوسط"}
+            — زمان کل: ${formatMinutes(course.totalMinutes)}
+            — میانگین روزانه: ${formatMinutes(course.dailyMinutes)}
+          </div>
+        `).join("")}
+      `;
+
+      const session = Number(document.getElementById("sessionLength").value);
+      const breakTime = Number(document.getElementById("breakLength").value);
+      const dailyPlan = makeDailyPlan(courses, hoursPerDay * 60, session);
+
+      document.getElementById("schedule").innerHTML = `
+        <h3>برنامه‌ی روزانه‌ی پیشنهادی</h3>
+        <div class="hint">این الگو را برای ${days} روز تکرار کن و بین نوبت‌ها ${breakTime} دقیقه استراحت داشته باش.</div>
+        <div class="schedule-day">
+          ${dailyPlan.map(item =>
+            `<p>${escapeText(item.name)}: حدود ${formatMinutes(item.minutes)}</p>`
+          ).join("")}
+        </div>
+        <div class="hint">هر نوبت مطالعه را حدود ${session} دقیقه در نظر بگیر.</div>
+      `;
+
+      showStep("result");
+    }
+
+    function makeDailyPlan(courses, totalDailyMinutes, sessionMinutes) {
+      let remaining = Math.floor(totalDailyMinutes / sessionMinutes) * sessionMinutes;
+
+      if (remaining === 0) {
+        remaining = totalDailyMinutes;
+      }
+
+      const plan = courses.map(course => ({
+        name: course.name,
+        minutes: 0,
+        fraction: course.share
+      }));
+
+      // تخصیص نوبت‌های مطالعه به درس‌ها بر اساس سهمشان
+      let sessionsLeft = Math.floor(remaining / sessionMinutes);
+
+      if (sessionsLeft === 0) {
+        plan[0].minutes = remaining;
+        return plan.filter(item => item.minutes > 0);
+      }
+
+      for (let i = 0; i < sessionsLeft; i++) {
+        const next = plan.reduce((best, item) =>
+          item.minutes / Math.max(item.fraction, 0.01) <
+          best.minutes / Math.max(best.fraction, 0.01) ? item : best
+        );
+
+        next.minutes += sessionMinutes;
+      }
+
+      return plan.filter(item => item.minutes > 0);
+    }
+
+    function formatMinutes(minutes) {
+      const rounded = Math.max(0, Math.round(minutes));
+      const hours = Math.floor(rounded / 60);
+      const mins = rounded % 60;
+
+      if (hours && mins) return `${hours} ساعت و ${mins} دقیقه`;
+      if (hours) return `${hours} ساعت`;
+      return `${mins} دقیقه`;
+    }
+
+    // در شروع، دو درس نمونه نمایش داده می‌شود.
+    addCourse("فیزیولوژی", 4, 7);
+    addCourse("بیوالکتریک", 3, 5);
+  </script>
+</body>
+</html>
