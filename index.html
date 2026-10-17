@@ -3,500 +3,841 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>برنامه‌ریز مطالعه</title>
+  <title>همراه مطالعه | برنامه‌ریز تحصیلی</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --ink: #172554;
+      --muted: #64748b;
+      --primary: #6255e7;
+      --primary-dark: #4f46c8;
+      --mint: #b9f2dc;
+      --paper: #ffffff;
+      --bg: #f3f5fc;
+      --line: #e6e9f2;
+      --orange: #f6a66f;
+      --shadow: 0 18px 55px #25306b12;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 24px;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 5%, #e5e2ff 0, transparent 25%),
+        radial-gradient(circle at 10% 95%, #d9f8eb 0, transparent 25%),
+        var(--bg);
       font-family: Tahoma, Arial, sans-serif;
-      background: #f2f5fb;
-      color: #1f2937;
     }
 
-    .container {
-      width: min(760px, 100%);
-      margin: 30px auto;
-      padding: 30px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 10px 35px #17255414;
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1050px, calc(100% - 32px));
+      margin: 28px auto;
     }
 
-    h1 {
-      margin-top: 0;
-      color: #4338ca;
-    }
-
-    .intro {
-      color: #64748b;
-      line-height: 1.9;
-    }
-
-    .progress {
-      height: 9px;
-      margin: 24px 0;
-      overflow: hidden;
-      background: #e5e7eb;
-      border-radius: 10px;
-    }
-
-    .progress-bar {
-      width: 33.33%;
-      height: 100%;
-      background: #6366f1;
-      transition: width 0.25s;
-    }
-
-    .step {
-      display: none;
-    }
-
-    .step.active {
-      display: block;
-    }
-
-    label {
-      display: block;
-      margin: 16px 0 7px;
-      font-weight: bold;
-    }
-
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font: inherit;
-      background: #fff;
-    }
-
-    .hint {
-      margin-top: 6px;
-      color: #64748b;
-      font-size: 13px;
-    }
-
-    .course {
-      margin: 14px 0;
-      padding: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-    }
-
-    .course-title {
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .course-title strong {
-      color: #4338ca;
-    }
-
-    .remove-btn {
-      padding: 6px 10px;
-      color: #b91c1c;
-      background: #fee2e2;
-      border: 0;
-      border-radius: 8px;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    .buttons {
+    .brand {
       display: flex;
-      justify-content: space-between;
+      align-items: center;
       gap: 12px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      color: white;
+      background: var(--primary);
+      font-size: 23px;
+      box-shadow: 0 8px 20px #6255e744;
+    }
+
+    .privacy-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar, .main-card {
+      background: var(--paper);
+      border: 1px solid #ffffff;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 22px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .sidebar h3 { margin: 0 0 18px; }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .step-number {
+      display: grid;
+      place-items: center;
+      flex: 0 0 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .step-item.current {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .step-item.current .step-number,
+    .step-item.done .step-number {
+      color: white;
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    .tip-box {
+      margin-top: 26px;
+      padding: 15px;
+      border-radius: 16px;
+      color: #305b4b;
+      background: #e7faf2;
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    .main-card { padding: clamp(20px, 4vw, 40px); }
+
+    .step { display: none; }
+    .step.active { display: block; animation: appear .3s ease; }
+
+    @keyframes appear {
+      from { opacity: .4; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    h1, h2, h3, p { line-height: 1.65; }
+    h1, h2 { margin-top: 0; }
+    h1 { font-size: clamp(24px, 4vw, 34px); }
+    h2 { font-size: 25px; }
+    .description { color: var(--muted); margin-top: -8px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
       margin-top: 24px;
     }
 
-    button {
-      padding: 12px 18px;
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      color: var(--ink);
+      background: #fbfcff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px #6255e71a;
+    }
+
+    .small-help { margin-top: 6px; color: var(--muted); font-size: 12px; }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .choice {
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      transition: .2s;
+    }
+
+    .choice:hover { border-color: #b8b2ff; transform: translateY(-2px); }
+    .choice.selected {
+      border: 2px solid var(--primary);
+      background: #f3f1ff;
+    }
+
+    .choice .emoji { display: block; margin-bottom: 8px; font-size: 25px; }
+    .choice strong { display: block; font-size: 14px; }
+    .choice small { display: block; margin-top: 5px; color: var(--muted); }
+
+    .course-card {
+      margin: 14px 0;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #fcfcff;
+    }
+
+    .course-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .remove {
+      padding: 7px 10px;
+      color: #b42338;
+      background: #fff0f1;
       border: 0;
-      border-radius: 10px;
-      font: inherit;
+      border-radius: 9px;
       cursor: pointer;
     }
 
-    .primary {
-      color: #fff;
-      background: #4f46e5;
+    .range-line {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .secondary {
-      color: #334155;
-      background: #e2e8f0;
+    input[type="range"] { padding: 8px 0; accent-color: var(--primary); }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
     }
 
-    .add-btn {
-      width: 100%;
-      margin-top: 8px;
-      color: #4338ca;
-      background: #eef2ff;
+    .btn {
+      padding: 12px 19px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: .2s;
     }
 
-    .result-box {
-      margin: 14px 0;
-      padding: 16px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { color: white; background: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-light { color: var(--ink); background: #eef0f7; }
+    .btn-add { width: 100%; color: var(--primary); background: #f0efff; }
+
+    .result-hero {
+      padding: 22px;
+      margin-bottom: 18px;
+      border-radius: 19px;
+      background: linear-gradient(120deg, #eeecff, #e6faf2);
     }
 
-    .result-box h3 {
-      margin-top: 0;
-      color: #4338ca;
+    .result-hero h2 { margin: 0 0 6px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0;
     }
 
-    .course-result {
-      margin: 10px 0;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #e2e8f0;
+    .stat {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: white;
     }
 
-    .course-result:last-child {
-      border-bottom: 0;
+    .stat span { display: block; color: var(--muted); font-size: 12px; }
+    .stat strong { display: block; margin-top: 7px; font-size: 20px; }
+
+    .panel {
+      margin-top: 16px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
     }
 
-    .schedule-day {
-      margin: 12px 0;
-      padding: 14px;
-      background: #f8fafc;
-      border-right: 4px solid #6366f1;
+    .panel h3 { margin-top: 0; }
+
+    .subject-row { margin: 14px 0; }
+    .subject-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .bar {
+      height: 9px;
+      overflow: hidden;
       border-radius: 10px;
+      background: #eceef5;
     }
 
-    .schedule-day h4 {
-      margin: 0 0 8px;
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), #a69cff);
     }
 
-    .note {
-      margin-top: 18px;
-      color: #64748b;
-      font-size: 13px;
-      line-height: 1.8;
+    .advice-list { padding-right: 20px; line-height: 2; }
+    .advice-list li { margin: 5px 0; }
+
+    .day-card {
+      margin: 12px 0;
+      padding: 15px;
+      border-radius: 14px;
+      background: #f8f9fd;
     }
 
-    @media (max-width: 550px) {
-      body {
-        padding: 12px;
-      }
+    .task {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
 
-      .container {
-        margin: 12px auto;
-        padding: 20px;
-      }
+    .task:last-child { border-bottom: 0; }
+    .task input { width: 18px; margin-top: 3px; accent-color: var(--primary); }
+    .task.done span { color: #94a3b8; text-decoration: line-through; }
+
+    .save-status { color: var(--muted); font-size: 12px; }
+    .disclaimer { color: var(--muted); font-size: 12px; line-height: 1.9; }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .sidebar h3 { margin-bottom: 10px; }
+      .step-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+      .step-item { flex-direction: column; gap: 5px; text-align: center; font-size: 11px; }
+      .tip-box { display: none; }
+    }
+
+    @media (max-width: 520px) {
+      .app { width: min(100% - 20px, 1050px); margin: 12px auto; }
+      .privacy-note { display: none; }
+      .form-grid, .stats { grid-template-columns: 1fr; }
+      .choice-grid { grid-template-columns: 1fr; }
+      .main-card { padding: 20px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .topbar, .sidebar, .button-row, .disclaimer { display: none !important; }
+      .layout { display: block; }
+      .main-card { box-shadow: none; border: 0; }
+      #result { display: block !important; }
     }
   </style>
 </head>
 
 <body>
-  <main class="container">
-    <h1>برنامه‌ریز مطالعه</h1>
-    <p class="intro">
-      اطلاعات درس‌ها و زمان آزادت را وارد کن تا یک برنامه‌ی پیشنهادی برای مطالعه بسازی.
-    </p>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">✦</div>
+        <span>همراه مطالعه</span>
+      </div>
+      <div class="privacy-note">برنامه‌ات در همین مرورگر ذخیره می‌شود</div>
+    </header>
 
-    <div class="progress">
-      <div class="progress-bar" id="progressBar"></div>
+    <div class="layout">
+      <aside class="sidebar">
+        <h3>مسیر برنامه‌ریزی</h3>
+        <div class="step-list">
+          <div class="step-item current" data-step="1"><span class="step-number">۱</span><span>زمان‌بندی</span></div>
+          <div class="step-item" data-step="2"><span class="step-number">۲</span><span>درس‌ها</span></div>
+          <div class="step-item" data-step="3"><span class="step-number">۳</span><span>سبک مطالعه</span></div>
+          <div class="step-item" data-step="4"><span class="step-number">۴</span><span>برنامه نهایی</span></div>
+        </div>
+        <div class="tip-box">
+          🌱 برنامه‌ی خوب، برنامه‌ای نیست که بیشترین ساعت را پر کند؛ برنامه‌ای است که بتوانی واقعاً انجامش بدهی.
+        </div>
+      </aside>
+
+      <main class="main-card">
+        <!-- گام ۱ -->
+        <section class="step active" id="step1">
+          <div class="eyebrow">گام اول از سه</div>
+          <h1>از زمانت شروع کنیم</h1>
+          <p class="description">چند سؤال کوتاه کمک می‌کند برنامه با شرایط واقعی تو هماهنگ‌تر باشد.</p>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="examDays">چند روز تا امتحان مانده؟</label>
+              <input id="examDays" type="number" min="1" max="365" value="14">
+            </div>
+            <div class="field">
+              <label for="hoursDay">روزانه چند ساعت وقت مطالعه داری؟</label>
+              <input id="hoursDay" type="number" min="0.5" max="16" step="0.5" value="3">
+              <div class="small-help">زمان خالص مطالعه را وارد کن.</div>
+            </div>
+            <div class="field">
+              <label for="studyDays">چند روز در هفته می‌توانی مطالعه کنی؟</label>
+              <select id="studyDays">
+                <option value="7">هر ۷ روز</option>
+                <option value="6" selected>۶ روز</option>
+                <option value="5">۵ روز</option>
+                <option value="4">۴ روز</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="freeDay">روز استراحت هفتگی</label>
+              <select id="freeDay">
+                <option>شنبه</option><option>یکشنبه</option><option>دوشنبه</option>
+                <option>سه‌شنبه</option><option>چهارشنبه</option>
+                <option>پنجشنبه</option><option>جمعه</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <span></span>
+            <button class="btn btn-primary" onclick="nextStep(2)">ادامه ←</button>
+          </div>
+        </section>
+
+        <!-- گام ۲ -->
+        <section class="step" id="step2">
+          <div class="eyebrow">گام دوم از سه</div>
+          <h2>درس‌هایت را وارد کن</h2>
+          <p class="description">سختی و حجم باقی‌مانده به اولویت‌بندی کمک می‌کند.</p>
+
+          <div id="courses"></div>
+          <button class="btn btn-add" onclick="addCourse()">＋ افزودن درس</button>
+
+          <div class="button-row">
+            <button class="btn btn-light" onclick="showStep(1)">→ قبلی</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">ادامه ←</button>
+          </div>
+        </section>
+
+        <!-- گام ۳ -->
+        <section class="step" id="step3">
+          <div class="eyebrow">گام سوم از سه</div>
+          <h2>سبک مطالعه‌ی مناسب خودت را انتخاب کن</h2>
+          <p class="description">هیچ انتخاب درستی یا غلطی وجود ندارد؛ چیزی را بزن که بیشتر به تو می‌خورد.</p>
+
+          <label>معمولاً در چه زمانی تمرکز بهتری داری؟</label>
+          <div class="choice-grid" id="timeChoices">
+            <button class="choice selected" data-value="morning" onclick="selectChoice(this,'timeChoices')">
+              <span class="emoji">🌤️</span><strong>صبح</strong><small>شروع پرانرژی</small>
+            </button>
+            <button class="choice" data-value="afternoon" onclick="selectChoice(this,'timeChoices')">
+              <span class="emoji">☀️</span><strong>بعدازظهر</strong><small>میانه‌ی روز</small>
+            </button>
+            <button class="choice" data-value="night" onclick="selectChoice(this,'timeChoices')">
+              <span class="emoji">🌙</span><strong>شب</strong><small>فضای آرام</small>
+            </button>
+          </div>
+
+          <label style="margin-top:25px">برای یادگیری بیشتر به چه چیزی نیاز داری؟</label>
+          <div class="choice-grid" id="methodChoices">
+            <button class="choice selected" data-value="practice" onclick="selectChoice(this,'methodChoices')">
+              <span class="emoji">✍️</span><strong>تمرین و حل سؤال</strong><small>یادگیری با انجام‌دادن</small>
+            </button>
+            <button class="choice" data-value="summary" onclick="selectChoice(this,'methodChoices')">
+              <span class="emoji">📒</span><strong>خلاصه‌نویسی</strong><small>مرور نکته‌ها</small>
+            </button>
+            <button class="choice" data-value="teach" onclick="selectChoice(this,'methodChoices')">
+              <span class="emoji">🗣️</span><strong>توضیح‌دادن</strong><small>یادگیری با آموزش</small>
+            </button>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="session">مدت هر نوبت مطالعه</label>
+              <select id="session">
+                <option value="25">۲۵ دقیقه</option>
+                <option value="45" selected>۴۵ دقیقه</option>
+                <option value="60">۶۰ دقیقه</option>
+                <option value="90">۹۰ دقیقه</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="break">استراحت بین نوبت‌ها</label>
+              <select id="break">
+                <option value="5">۵ دقیقه</option>
+                <option value="10" selected>۱۰ دقیقه</option>
+                <option value="15">۱۵ دقیقه</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn btn-light" onclick="showStep(2)">→ قبلی</button>
+            <button class="btn btn-primary" onclick="buildPlan()">ساخت برنامه‌ی من ✨</button>
+          </div>
+        </section>
+
+        <!-- نتیجه -->
+        <section class="step" id="step4">
+          <div id="output"></div>
+          <div class="button-row">
+            <button class="btn btn-light" onclick="showStep(1)">ویرایش اطلاعات</button>
+            <div>
+              <button class="btn btn-light" onclick="window.print()">چاپ</button>
+              <button class="btn btn-primary" onclick="clearProgress()">پاک‌کردن تیک‌ها</button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-
-    <!-- مرحله اول -->
-    <section class="step active" id="step1">
-      <h2>۱. زمان‌بندی</h2>
-
-      <label for="days">چند روز تا امتحان باقی مانده؟</label>
-      <input id="days" type="number" min="1" max="365" value="14">
-
-      <label for="hours">روزانه چند ساعت می‌توانی درس بخوانی؟</label>
-      <input id="hours" type="number" min="0.5" max="16" step="0.5" value="3">
-      <div class="hint">زمان مطالعه‌ی خالص را وارد کن؛ استراحت در این مقدار حساب نمی‌شود.</div>
-
-      <div class="buttons">
-        <span></span>
-        <button class="primary" onclick="goToStep(2)">مرحله بعد</button>
-      </div>
-    </section>
-
-    <!-- مرحله دوم -->
-    <section class="step" id="step2">
-      <h2>۲. درس‌ها</h2>
-      <p class="intro">برای هر درس، سختی و حجم باقی‌مانده را مشخص کن.</p>
-
-      <div id="courses"></div>
-      <button class="add-btn" onclick="addCourse()">+ افزودن درس</button>
-
-      <div class="buttons">
-        <button class="secondary" onclick="goToStep(1)">قبلی</button>
-        <button class="primary" onclick="goToStep(3)">مرحله بعد</button>
-      </div>
-    </section>
-
-    <!-- مرحله سوم -->
-    <section class="step" id="step3">
-      <h2>۳. ترجیحات مطالعه</h2>
-
-      <label for="sessionLength">مدت هر نوبت مطالعه</label>
-      <select id="sessionLength">
-        <option value="25">۲۵ دقیقه</option>
-        <option value="45" selected>۴۵ دقیقه</option>
-        <option value="60">۶۰ دقیقه</option>
-        <option value="90">۹۰ دقیقه</option>
-      </select>
-
-      <label for="breakLength">مدت استراحت بین نوبت‌ها</label>
-      <select id="breakLength">
-        <option value="5">۵ دقیقه</option>
-        <option value="10" selected>۱۰ دقیقه</option>
-        <option value="15">۱۵ دقیقه</option>
-      </select>
-
-      <div class="buttons">
-        <button class="secondary" onclick="goToStep(2)">قبلی</button>
-        <button class="primary" onclick="createPlan()">ساخت برنامه</button>
-      </div>
-    </section>
-
-    <!-- نتیجه -->
-    <section class="step" id="result">
-      <h2>برنامه‌ی پیشنهادی تو</h2>
-      <div id="summary" class="result-box"></div>
-      <div id="allocation" class="result-box"></div>
-      <div id="schedule"></div>
-
-      <p class="note">
-        این برنامه یک پیشنهاد ساده‌ی آموزشی است. اگر برنامه با شرایط واقعی‌ات جور نبود،
-        اطلاعات را تغییر بده و دوباره برنامه بساز.
-      </p>
-
-      <div class="buttons">
-        <button class="secondary" onclick="goToStep(1)">ویرایش اطلاعات</button>
-        <button class="primary" onclick="window.print()">چاپ برنامه</button>
-      </div>
-    </section>
-  </main>
+  </div>
 
   <script>
-    let courseCount = 0;
+    const dayNames = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"];
+    let courseId = 0;
 
     function addCourse(name = "", difficulty = 3, workload = 5) {
-      courseCount++;
-
-      const course = document.createElement("div");
-      course.className = "course";
-
-      course.innerHTML = `
-        <div class="course-title">
-          <strong>درس جدید</strong>
-          <button type="button" class="remove-btn"
-            onclick="this.closest('.course').remove()">حذف</button>
+      courseId++;
+      const card = document.createElement("div");
+      card.className = "course-card";
+      card.innerHTML = `
+        <div class="course-head">
+          <strong>📘 درس</strong>
+          <button class="remove" type="button" onclick="this.closest('.course-card').remove()">حذف درس</button>
         </div>
-
-        <label>نام درس</label>
-        <input class="course-name" type="text"
-          placeholder="مثلاً فیزیولوژی" value="${escapeText(name)}">
-
-        <label>سختی درس: <span class="difficulty-label">${difficulty}</span> از ۵</label>
-        <input class="course-difficulty" type="range" min="1" max="5"
-          value="${difficulty}"
-          oninput="this.previousElementSibling.querySelector('span').textContent=this.value">
-
-        <label>حجم باقی‌مانده: از ۱ تا ۱۰</label>
-        <input class="course-workload" type="number" min="1" max="10"
-          value="${workload}">
-        <div class="hint">عدد بیشتر یعنی مطالب بیشتری برای مطالعه باقی مانده است.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>نام درس</label>
+            <input class="course-name" type="text" placeholder="مثلاً فیزیولوژی" value="${escapeHtml(name)}">
+          </div>
+          <div class="field">
+            <label>حجم مطالب باقی‌مانده از ۱ تا ۱۰</label>
+            <input class="course-work" type="number" min="1" max="10" value="${workload}">
+          </div>
+          <div class="field full">
+            <label>سختی درس: <span class="difficulty-value">${difficulty}</span> از ۵</label>
+            <input class="course-difficulty" type="range" min="1" max="5" value="${difficulty}"
+              oninput="this.previousElementSibling.querySelector('span').textContent=this.value">
+            <div class="range-line"><span>آسان</span><span>سخت</span></div>
+          </div>
+        </div>
       `;
-
-      document.getElementById("courses").appendChild(course);
+      document.getElementById("courses").appendChild(card);
     }
 
-    function escapeText(text) {
-      return String(text).replace(/[&<>"']/g, function (char) {
-        return {
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#039;"
-        }[char];
-      });
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      })[char]);
     }
 
-    function goToStep(number) {
-      if (number === 2) {
-        const days = Number(document.getElementById("days").value);
-        const hours = Number(document.getElementById("hours").value);
+    function selectChoice(button, groupId) {
+      document.querySelectorAll(`#${groupId} .choice`).forEach(item => item.classList.remove("selected"));
+      button.classList.add("selected");
+    }
 
+    function selectedValue(groupId) {
+      return document.querySelector(`#${groupId} .choice.selected`).dataset.value;
+    }
+
+    function nextStep(step) {
+      if (step === 2) {
+        const days = Number(document.getElementById("examDays").value);
+        const hours = Number(document.getElementById("hoursDay").value);
         if (days < 1 || hours <= 0) {
-          alert("لطفاً تعداد روزها و ساعت مطالعه را درست وارد کن.");
+          alert("تعداد روزها و ساعت مطالعه را درست وارد کن.");
           return;
         }
       }
 
-      if (number === 3) {
-        const courses = getCourses();
-
-        if (courses.length === 0) {
-          alert("لطفاً دست‌کم یک درس اضافه کن.");
-          return;
-        }
-
-        if (courses.some(course => !course.name)) {
-          alert("لطفاً برای همه‌ی درس‌ها نام وارد کن.");
-          return;
-        }
+      if (step === 3 && !readCourses()) {
+        alert("حداقل یک درس با نام معتبر وارد کن.");
+        return;
       }
 
-      showStep("step" + number);
+      showStep(step);
     }
 
-    function showStep(id) {
-      document.querySelectorAll(".step").forEach(step => {
-        step.classList.remove("active");
+    function showStep(number) {
+      document.querySelectorAll(".step").forEach(section => section.classList.remove("active"));
+      document.getElementById("step" + number).classList.add("active");
+
+      document.querySelectorAll(".step-item").forEach(item => {
+        const n = Number(item.dataset.step);
+        item.classList.toggle("current", n === number);
+        item.classList.toggle("done", n < number);
       });
 
-      document.getElementById(id).classList.add("active");
-
-      const progress = {
-        step1: "33.33%",
-        step2: "66.66%",
-        step3: "100%",
-        result: "100%"
-      };
-
-      document.getElementById("progressBar").style.width = progress[id];
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function getCourses() {
-      return [...document.querySelectorAll(".course")].map(card => ({
+    function readCourses() {
+      const cards = [...document.querySelectorAll(".course-card")];
+      const courses = cards.map(card => ({
         name: card.querySelector(".course-name").value.trim(),
         difficulty: Number(card.querySelector(".course-difficulty").value),
-        workload: Number(card.querySelector(".course-workload").value)
+        workload: Number(card.querySelector(".course-work").value)
       }));
+
+      if (!courses.length || courses.some(c => !c.name || c.workload < 1 || c.workload > 10)) {
+        return null;
+      }
+      return courses;
     }
 
-    function createPlan() {
-      const days = Number(document.getElementById("days").value);
-      const hoursPerDay = Number(document.getElementById("hours").value);
-      const courses = getCourses();
+    function formatMinutes(value) {
+      const minutes = Math.max(0, Math.round(value));
+      const hours = Math.floor(minutes / 60);
+      const rest = minutes % 60;
+      if (hours && rest) return `${hours} ساعت و ${rest} دقیقه`;
+      if (hours) return `${hours} ساعت`;
+      return `${rest} دقیقه`;
+    }
 
-      if (!courses.length || courses.some(course => !course.name)) {
-        alert("لطفاً حداقل یک درس اضافه کن و نام همه‌ی درس‌ها را بنویس.");
+    function buildPlan() {
+      const courses = readCourses();
+      if (!courses) {
+        alert("نام و حجم باقی‌مانده‌ی درس‌ها را بررسی کن.");
+        showStep(2);
         return;
       }
 
-      if (courses.some(course => course.workload < 1 || course.workload > 10)) {
-        alert("حجم باقی‌مانده‌ی هر درس باید بین ۱ تا ۱۰ باشد.");
-        return;
-      }
+      const daysLeft = Number(document.getElementById("examDays").value);
+      const hoursPerDay = Number(document.getElementById("hoursDay").value);
+      const studyDaysWeek = Number(document.getElementById("studyDays").value);
+      const restDay = document.getElementById("freeDay").value;
+      const session = Number(document.getElementById("session").value);
+      const breakMinutes = Number(document.getElementById("break").value);
+      const timeOfDay = selectedValue("timeChoices");
+      const method = selectedValue("methodChoices");
 
-      // امتیاز بیشتر یعنی سهم زمانی بیشتر:
-      // سختی × حجم باقی‌مانده
-      const totalWeight = courses.reduce(
-        (sum, course) => sum + course.difficulty * course.workload, 0
-      );
+      // اولویت بر اساس سختی و حجم مطالب باقی‌مانده
+      courses.forEach(course => {
+        course.score = course.difficulty * course.workload;
+      });
 
-      const totalHours = days * hoursPerDay;
+      const totalScore = courses.reduce((sum, course) => sum + course.score, 0);
+      const availableDays = Math.max(1, Math.round(daysLeft * studyDaysWeek / 7));
+      const totalStudyMinutes = availableDays * hoursPerDay * 60;
 
       courses.forEach(course => {
-        course.weight = course.difficulty * course.workload;
-        course.share = course.weight / totalWeight;
-        course.totalMinutes = Math.round(totalHours * 60 * course.share);
+        course.share = course.score / totalScore;
+        course.totalMinutes = Math.round(totalStudyMinutes * course.share);
         course.dailyMinutes = Math.round(hoursPerDay * 60 * course.share);
       });
 
-      document.getElementById("summary").innerHTML = `
-        <h3>خلاصه</h3>
-        <p>تا امتحان: <strong>${days} روز</strong></p>
-        <p>زمان مطالعه‌ی روزانه: <strong>${hoursPerDay} ساعت</strong></p>
-        <p>کل زمان مطالعه‌ی برنامه‌ریزی‌شده: <strong>${formatMinutes(totalHours * 60)}</strong></p>
-      `;
+      courses.sort((a, b) => b.score - a.score);
 
-      const sortedCourses = [...courses].sort((a, b) => b.weight - a.weight);
+      const advice = makeAdvice(courses, daysLeft, hoursPerDay, timeOfDay, method);
+      const schedule = makeSchedule(courses, hoursPerDay * 60, session, daysLeft, restDay);
+      const planId = "study-plan-" + Date.now();
 
-      document.getElementById("allocation").innerHTML = `
-        <h3>تقسیم زمان و اولویت درس‌ها</h3>
-        ${sortedCourses.map((course, index) => `
-          <div class="course-result">
-            <strong>${index + 1}. ${escapeText(course.name)}</strong><br>
-            اولویت: ${index === 0 ? "زیاد" : index === sortedCourses.length - 1 ? "کمتر" : "متوسط"}
-            — زمان کل: ${formatMinutes(course.totalMinutes)}
-            — میانگین روزانه: ${formatMinutes(course.dailyMinutes)}
-          </div>
-        `).join("")}
-      `;
-
-      const session = Number(document.getElementById("sessionLength").value);
-      const breakTime = Number(document.getElementById("breakLength").value);
-      const dailyPlan = makeDailyPlan(courses, hoursPerDay * 60, session);
-
-      document.getElementById("schedule").innerHTML = `
-        <h3>برنامه‌ی روزانه‌ی پیشنهادی</h3>
-        <div class="hint">این الگو را برای ${days} روز تکرار کن و بین نوبت‌ها ${breakTime} دقیقه استراحت داشته باش.</div>
-        <div class="schedule-day">
-          ${dailyPlan.map(item =>
-            `<p>${escapeText(item.name)}: حدود ${formatMinutes(item.minutes)}</p>`
-          ).join("")}
+      const output = `
+        <div class="result-hero">
+          <div class="eyebrow">برنامه آماده شد</div>
+          <h2>${advice.title}</h2>
+          <p>${advice.summary}</p>
         </div>
-        <div class="hint">هر نوبت مطالعه را حدود ${session} دقیقه در نظر بگیر.</div>
+
+        <div class="stats">
+          <div class="stat"><span>روز تا امتحان</span><strong>${daysLeft}</strong></div>
+          <div class="stat"><span>روزهای برنامه‌ریزی‌شده</span><strong>${availableDays}</strong></div>
+          <div class="stat"><span>اولویت اول</span><strong style="font-size:16px">${escapeHtml(courses[0].name)}</strong></div>
+        </div>
+
+        <div class="panel">
+          <h3>تقسیم زمان بین درس‌ها</h3>
+          ${courses.map((course, index) => `
+            <div class="subject-row">
+              <div class="subject-meta">
+                <strong>${index + 1}. ${escapeHtml(course.name)}</strong>
+                <span>${formatMinutes(course.totalMinutes)} کل · ${formatMinutes(course.dailyMinutes)} روزانه</span>
+              </div>
+              <div class="bar"><span style="width:${Math.round(course.share * 100)}%"></span></div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="panel">
+          <h3>راهنمایی مشاور تحصیلی</h3>
+          <ul class="advice-list">${advice.points.map(point => `<li>${point}</li>`).join("")}</ul>
+        </div>
+
+        <div class="panel">
+          <h3>الگوی مطالعه‌ی روزانه</h3>
+          <p class="description">هر نوبت حدود ${session} دقیقه است؛ بین نوبت‌ها ${breakMinutes} دقیقه استراحت کن.</p>
+          ${schedule.map((day, index) => `
+            <div class="day-card">
+              <strong>${day.label}</strong>
+              ${day.tasks.map((task, taskIndex) => {
+                const taskId = `${planId}-${index}-${taskIndex}`;
+                return `<label class="task" id="label-${taskId}">
+                  <input type="checkbox" data-task-id="${taskId}" onchange="toggleTask(this)">
+                  <span>${escapeHtml(task.name)} — ${formatMinutes(task.minutes)} · ${escapeHtml(task.hint)}</span>
+                </label>`;
+              }).join("")}
+            </div>
+          `).join("")}
+          <div class="save-status">تیک‌های انجام‌شده در همین مرورگر ذخیره می‌شوند.</div>
+        </div>
+
+        <p class="disclaimer">
+          این سایت از قواعد ساده برای اولویت‌بندی استفاده می‌کند و هوش مصنوعی یا داده‌های آموزشی واقعی را به کار نمی‌گیرد.
+          پیشنهادها جایگزین نظر استاد، مشاور یا برنامه‌ی شخصی تو نیستند.
+        </p>
       `;
 
-      showStep("result");
+      document.getElementById("output").innerHTML = output;
+      restoreChecks();
+      showStep(4);
     }
 
-    function makeDailyPlan(courses, totalDailyMinutes, sessionMinutes) {
-      let remaining = Math.floor(totalDailyMinutes / sessionMinutes) * sessionMinutes;
+    function makeAdvice(courses, days, hours, timeOfDay, method) {
+      const top = courses[0];
+      const points = [];
 
-      if (remaining === 0) {
-        remaining = totalDailyMinutes;
+      points.push(`«${escapeHtml(top.name)}» فعلاً اولویت بالاتری دارد، چون ترکیب سختی و حجم باقی‌مانده‌ی آن از درس‌های دیگر بیشتر است.`);
+
+      if (days <= 3) {
+        points.push("زمان تا امتحان کم است؛ روی نکات پرتکرار، مرور خلاصه‌ها و حل نمونه‌سؤال تمرکز کن و سراغ یادداشت‌برداری مفصل نرو.");
+      } else if (days <= 10) {
+        points.push("زمانت محدود اما قابل‌استفاده است؛ هر روز یک درس اصلی و یک مرور کوتاه از درس قبلی در برنامه بگذار.");
+      } else {
+        points.push("چند روز اول را برای یادگیری مطالب جدید بگذار و روزهای پایانی را بیشتر به مرور فعال و حل سؤال اختصاص بده.");
       }
 
-      const plan = courses.map(course => ({
-        name: course.name,
-        minutes: 0,
-        fraction: course.share
-      }));
-
-      // تخصیص نوبت‌های مطالعه به درس‌ها بر اساس سهمشان
-      let sessionsLeft = Math.floor(remaining / sessionMinutes);
-
-      if (sessionsLeft === 0) {
-        plan[0].minutes = remaining;
-        return plan.filter(item => item.minutes > 0);
+      if (hours >= 6) {
+        points.push("ساعت مطالعه‌ی روزانه زیاد است؛ آن را به چند نوبت تقسیم کن و استراحت واقعی داشته باش تا کیفیت تمرکز افت نکند.");
+      } else if (hours <= 2) {
+        points.push("زمان روزانه محدود است؛ هر نوبت را از قبل مشخص کن و ابتدا سراغ کاری برو که بیشترین اثر را روی آمادگی‌ات دارد.");
+      } else {
+        points.push("بعد از هر نوبت مطالعه، چند دقیقه از صفحه و جزوه فاصله بگیر؛ استراحت کوتاه به حفظ تمرکز کمک می‌کند.");
       }
 
-      for (let i = 0; i < sessionsLeft; i++) {
+      const timeText = {
+        morning: "چون صبح تمرکز بهتری داری، اگر برنامه‌ی روزانه‌ات اجازه می‌دهد درس دشوارتر را در اولین نوبت بگذار.",
+        afternoon: "اگر بعدازظهر زمان تمرکزت است، نوبت اول را به درس دشوارتر و نوبت بعدی را به مرور یا تمرین اختصاص بده.",
+        night: "چون شب را ترجیح می‌دهی، سعی کن پایان مطالعه را خیلی نزدیک به زمان خواب نگذاری و خواب کافی را حفظ کنی."
+      };
+      points.push(timeText[timeOfDay]);
+
+      const methodText = {
+        practice: "برای یادگیری، پس از خواندن هر مبحث چند سؤال حل کن و اشتباه‌هایت را جداگانه مرور کن.",
+        summary: "پس از هر مبحث، خلاصه‌ای کوتاه با زبان خودت بنویس؛ خلاصه را جایگزین تمرین و بازیابی از حافظه نکن.",
+        teach: "بعد از مطالعه، مطلب را بدون نگاه‌کردن به جزوه با صدای بلند توضیح بده؛ جاهایی که گیر می‌کنی نیاز به مرور دارند."
+      };
+      points.push(methodText[method]);
+
+      return {
+        title: days <= 3 ? "روی مهم‌ترین‌ها تمرکز کن" : "قدم‌های کوچک، پیشرفت واقعی می‌سازند",
+        summary: `برنامه بر اساس ${courses.length} درس، سختی هر درس و حجم باقی‌مانده تنظیم شده است.`,
+        points
+      };
+    }
+
+    function makeSchedule(courses, dailyMinutes, session, daysLeft, restDay) {
+      const sessions = Math.max(1, Math.floor(dailyMinutes / session));
+      const plan = courses.map(course => ({ ...course, sessions: 0 }));
+
+      for (let i = 0; i < sessions; i++) {
         const next = plan.reduce((best, item) =>
-          item.minutes / Math.max(item.fraction, 0.01) <
-          best.minutes / Math.max(best.fraction, 0.01) ? item : best
+          item.sessions / item.share < best.sessions / best.share ? item : best
         );
-
-        next.minutes += sessionMinutes;
+        next.sessions++;
       }
 
-      return plan.filter(item => item.minutes > 0);
+      const tasks = plan
+        .filter(course => course.sessions > 0)
+        .map(course => ({
+          name: course.name,
+          minutes: course.sessions * session,
+          hint: course.difficulty >= 4 ? "درس دشوار؛ با تمرکز و بدون حواس‌پرتی" :
+                course.workload >= 7 ? "بخش مشخصی از مطالب باقی‌مانده را جلو ببر" :
+                "مرور یا تمرین"
+        }));
+
+      const result = [];
+      const count = Math.min(daysLeft, 7);
+      for (let i = 0; i < count; i++) {
+        const dayName = dayNames[i % 7];
+        result.push({
+          label: dayName === restDay ? `${dayName} · استراحت یا جبران عقب‌ماندگی` : `${dayName} · الگوی مطالعه`,
+          tasks: dayName === restDay
+            ? [{ name: "استراحت؛ در صورت نیاز فقط مرور سبک", minutes: Math.min(20, session), hint: "اختیاری" }]
+            : tasks
+        });
+      }
+      return result;
     }
 
-    function formatMinutes(minutes) {
-      const rounded = Math.max(0, Math.round(minutes));
-      const hours = Math.floor(rounded / 60);
-      const mins = rounded % 60;
-
-      if (hours && mins) return `${hours} ساعت و ${mins} دقیقه`;
-      if (hours) return `${hours} ساعت`;
-      return `${mins} دقیقه`;
+    function toggleTask(input) {
+      const key = "planner-check-" + input.dataset.taskId;
+      localStorage.setItem(key, input.checked ? "done" : "");
+      input.closest(".task").classList.toggle("done", input.checked);
     }
 
-    // در شروع، دو درس نمونه نمایش داده می‌شود.
+    function restoreChecks() {
+      document.querySelectorAll("[data-task-id]").forEach(input => {
+        const done = localStorage.getItem("planner-check-" + input.dataset.taskId) === "done";
+        input.checked = done;
+        input.closest(".task").classList.toggle("done", done);
+      });
+    }
+
+    function clearProgress() {
+      document.querySelectorAll("[data-task-id]").forEach(input => {
+        localStorage.removeItem("planner-check-" + input.dataset.taskId);
+        input.checked = false;
+        input.closest(".task").classList.remove("done");
+      });
+    }
+
     addCourse("فیزیولوژی", 4, 7);
     addCourse("بیوالکتریک", 3, 5);
   </script>
